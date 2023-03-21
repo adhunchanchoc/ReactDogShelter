@@ -53,3 +53,41 @@ export const DogButton = styled.button`
   margin-right: 10px;
   padding: 5px;
 `;
+export const TabButtons = styled(DogForm)`
+  /* border: 1px white solid; */
+  height: 30px;
+  margin: 30px 0 0 0;
+  padding-top: 0;
+  /* flex-direction: row; */
+  justify-items: space-between;
+  text-justify: center;
+  /* align-items: center; */
+`;
+export const TabButton = styled(DogButton)`
+  width: 50%;
+  justify-content: center;
+  /* align-self: stretch; */
+  display: flex;
+  color: black;
+  font-size: 20px;
+  border: 1px white solid;
+  border-bottom: 0px;
+  background-color: lightgrey;
+  cursor: pointer;
+  ${(props) => {
+    if (props.name === props.active) {
+      return "background-color: #f4f2f3;";
+    }
+  }}/*
+  &:hover {
+    background-color: grey;
+  } 
+  &:active {
+    background-color: grey;
+  } */
+`;
+export const StorageForm = styled(DogForm)`
+  font-family: Arial;
+`;
+export const StorageInput = styled(DogInput)``;
+export const StorageButton = styled(DogButton)``;
