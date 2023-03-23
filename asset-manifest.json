@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/ReactDogShelter/static/css/main.033dbc2f.css",
+    "main.js": "/ReactDogShelter/static/js/main.e14355c0.js",
+    "index.html": "/ReactDogShelter/index.html",
+    "main.033dbc2f.css.map": "/ReactDogShelter/static/css/main.033dbc2f.css.map",
+    "main.e14355c0.js.map": "/ReactDogShelter/static/js/main.e14355c0.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.033dbc2f.css",
+    "static/js/main.e14355c0.js"
+  ]
+}
