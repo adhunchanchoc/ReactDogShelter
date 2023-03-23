@@ -11,20 +11,18 @@ import {
   StorageForm,
   StorageInput,
   StorageButton,
+  DeleteButton,
 } from "./homeStyles";
 import { dogs } from "./dogsData.js";
 
 export default function Home() {
-  const dogsCount = useRef(dogs.length); // nema but radeji listOfDogs?
   const [listOfDogs, setListOfDogs] = useState(dogs);
+  const dogsCount = useRef(dogs.length); // nema but radeji listOfDogs? !NE, protoze slouzi jako unique ID
   const [activeTab, setActiveTab] = useState("list-of-dogs");
 
   const dogsRequirements = { food: 5, vaccine: 1, pills: 2 };
-  // const food = useRef((dogsRequirements) => {
-  //   food;
-  // });
-  // const { food, vaccine, pills } = dogsRequirements;
-  // console.log("destrukturovano ", food);
+  // ukazka destrukturace
+  // const { food, vaccine, pills } = dogsRequirements; console.log("destrukturovano ", food);
 
   // const [totalDogsRequirements, setTotalDogsRequirements] = useState(
   //   (dogsRequirements, dogsCount) => {
@@ -33,25 +31,53 @@ export default function Home() {
   //     // pills: dogsCount.current * dogsRequirements.pills,
   //   }
   // );
-  const calculateTotal = () => {
-    return dogsRequirements.food * dogsCount.current;
+  const calculateTotal = async () => {
+    let cnt = (await listOfDogs.length) + 1; //mohu-li pridat dalsiho psa
+    return {
+      food: dogsRequirements.food * cnt,
+      vaccine: dogsRequirements.vaccine * cnt,
+      pills: dogsRequirements.pills * cnt,
+    };
   };
-  useEffect(() => {
-    console.log(dogsRequirements["food"]);
-    // console.log("plnych", totalDogsRequirements["food"]);
-    // console.table(totalDogsRequirements);
-    console.log("vypocet", calculateTotal());
-
-    // console.log("zradlo", food.current);
-  }, []);
+  const [isEnoughForNewDog, setIsEnoughForNewDog] = useState(false);
+  const checkAvailableStorage = async () => {
+    let needed = await calculateTotal(); // uplatneni async
+    if (
+      storage.food >= needed.food &&
+      storage.vaccine >= needed.vaccine &&
+      storage.pills >= needed.pills
+    ) {
+      await setIsEnoughForNewDog(true);
+      console.log(`dost zasob pro ${listOfDogs.length + 1}. psa`);
+    } else {
+      await setIsEnoughForNewDog(false);
+      console.log(`malo zasob pro ${listOfDogs.length + 1}. psa`);
+      console.log(
+        `vyzadovano:\t ${needed.food},${needed.vaccine},${needed.pills} \ndostupno:\t ${storage.food},${storage.vaccine},${storage.pills}`
+      );
+    }
+  };
+  // useEffect(() => {
+  //   console.log(dogsRequirements["food"]);
+  //   console.log("vypocet", calculateTotal());
+  //   console.log("dostupne", storage);
+  //   console.log("je dost:", isEnoughForNewDog);
+  // }, [isEnoughForNewDog]);
 
   const [newDog, setNewDog] = useState({
-    id: dogsCount.current + 1,
+    id: dogsCount.current + 1, // POZOR pri mazani by poskocilo, tento count nesmis dekrementovat, jinak nastane conflikt of keys
     name: "",
     race: "",
     age: "",
     //zde jsem musel dat empty string, protoze pri null ci 0 vadilo, ze muj input dava jiny typ
   });
+  const handleDelete = (event, id) => {
+    console.log(event.target.dataset.oldid); // postaru ziskany atribut data-id z dataset
+    console.log(id);
+    setListOfDogs(listOfDogs.filter((dog) => id !== dog.id));
+    // dogsCount.current--; nesmim dekrementovat counter zajistujici unique ID
+    checkAvailableStorage(); // pro komparaci zkraceneho listu se zasobami
+  };
   const handleInput = (event) => {
     setNewDog({ ...newDog, [event.target.name]: event.target.value });
   };
@@ -64,7 +90,7 @@ export default function Home() {
     setNewDog({ id: dogsCount.current + 1, name: "", race: "", age: "" });
   };
   //moje validace
-  useEffect(() => console.table(newDog), []);
+  // useEffect(() => console.table(newDog), []);
   const [isValid, setIsValid] = useState(false);
   useEffect(() => {
     if (
@@ -73,10 +99,10 @@ export default function Home() {
       parseInt(newDog.age) < 25
     ) {
       setIsValid(true);
-      console.log(isValid);
+      // console.log(isValid);
     } else {
       setIsValid(false);
-      console.log(isValid);
+      // console.log(isValid);
     }
   }, [handleInput]);
   const switchTab = (event) => {
@@ -84,35 +110,43 @@ export default function Home() {
     console.log(`switched to ${event.target.name}`);
   };
   //////////// SHELTER
-  const [storage, setStorage] = useState({ food: 0, vaccine: 0, pills: 0 });
+  const [storage, setStorage] = useState({ food: 30, vaccine: 6, pills: 12 });
   const [added, setAdded] = useState({
     food: "",
     vaccine: "",
     pills: "",
   });
 
-  const handleStoreInput = (event) => {
+  const handleStoreInput = async (event) => {
     setAdded({ ...added, [event.target.name]: parseInt(event.target.value) });
-    // console.log(event.target.name);
-    // console.table(added);
+    await console.table(added);
   };
   // useEffect(() => console.table(added), []);
 
-  const storeAdd = () => {
-    setStorage(() => {
+  const storeAdd = async () => {
+    await setStorage(() => {
       return {
         food: storage.food + (added.food ? added.food : 0),
         vaccine: storage.vaccine + (added.vaccine ? added.vaccine : 0),
         pills: storage.pills + (added.pills ? added.pills : 0),
       };
     });
-    //vynuluj added i inputy
-    setAdded({ food: "", vaccine: "", pills: "" });
+    //vynuluj added i inputy (potom, co je value inputu ziskavana ze state, tak asi neni potreba, protoze se nuluje zaroven se state)
+    await setAdded({ food: "", vaccine: "", pills: "" });
     let formular = document.getElementById("storageform");
     const inputy = Array.from(formular.getElementsByTagName("input"));
     //prevod na Array, protoze primo HTMLcollection nemuzu projet pomoci forEach
-    inputy.forEach((input) => (input.value = ""));
+    await inputy.forEach((input) => (input.value = ""));
   };
+
+  // pri zmene delky seznamu ci mnozstvi zasob over dostatecnost
+  useEffect(() => checkAvailableStorage); // tez funguje, ale asi prilis caste
+  // useEffect(
+  //   () => checkAvailableStorage,
+  //   [listOfDogs.length, storage.food, storage.vaccine, storage.pills]
+  // );
+  // POZOR nefungovala kontrola vnitrku objektu, kdyz jsem dal jen storage, useEffect pak nezaznamenal
+
   return (
     <PageContainer>
       <TabButtons>
@@ -132,7 +166,15 @@ export default function Home() {
           <DogList>
             {listOfDogs.map((dog) => (
               <DogItem key={dog.id} name={dog.name}>
-                {dog.name} / {dog.race} / {parseInt(dog.age)}
+                {dog.name} / {dog.race} / {parseInt(dog.age)}{" "}
+                <DeleteButton
+                  data-oldid={dog.id}
+                  onClick={(event) => {
+                    handleDelete(event, dog.id);
+                  }}
+                >
+                  X
+                </DeleteButton>
               </DogItem>
             ))}
           </DogList>
@@ -160,12 +202,17 @@ export default function Home() {
               style={{ minWidth: "50px" }}
               placeholder="vek"
             />
-            <DogButton disabled={!isValid} onClick={handleAddToList}>
+            <DogButton
+              disabled={!isValid || !isEnoughForNewDog}
+              onClick={handleAddToList}
+              //onMouseOver={checkAvailableStorage}
+            >
               Pridat
             </DogButton>
           </DogForm>
-          <div>TEST vystup: {calculateTotal()}</div>
+          {/* <div>TEST vystup: {calculateTotal()}</div> */}
           <div>TEST ulozeno: {storage.food}</div>
+          <button onClick={checkAvailableStorage}>OVERIT</button>
         </>
       )}
       {activeTab === "shelter-storage" && (

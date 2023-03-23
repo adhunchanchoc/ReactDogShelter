@@ -18,10 +18,10 @@ export const DogList = styled.div`
 `;
 export const DogItem = styled.div`
   display: block;
-  height: 30px;
+  height: 25px;
+  text-justify: center;
   /* width: 90%;
   padding: 0 15px;
-  align-items: center;
   justify-content: center;
   padding-top: 5px;
   justify-content: space-between; */
@@ -91,3 +91,19 @@ export const StorageForm = styled(DogForm)`
 `;
 export const StorageInput = styled(DogInput)``;
 export const StorageButton = styled(DogButton)``;
+
+export const DeleteButton = styled.div`
+  display: inline-block;
+  position: relative;
+  z-index: 50;
+  color: red;
+  height: 20px;
+  width: 20px;
+  border-radius: 80%;
+  padding: 0;
+  margin: 0;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  cursor: pointer;
+`;
