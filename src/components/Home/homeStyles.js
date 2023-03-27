@@ -7,12 +7,14 @@ export const PageContainer = styled.div`
   width: 100%;
   min-height: 100vh;
   align-items: center;
+  margin: 0 auto;
   background-color: beige;
 `;
 
 export const DogList = styled.div`
   display: flex;
   flex-direction: column;
+  max-width: 700px;
   min-width: 400px;
   background: transparent;
 `;

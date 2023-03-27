@@ -211,8 +211,13 @@ export default function Home() {
             </DogButton>
           </DogForm>
           {/* <div>TEST vystup: {calculateTotal()}</div> */}
-          <div>TEST ulozeno: {storage.food}</div>
-          <button onClick={checkAvailableStorage}>OVERIT</button>
+          {/* <div>TEST ulozeno: {storage.food}</div> */}
+          <button
+            style={{ color: isEnoughForNewDog ? "green" : "red" }}
+            onClick={checkAvailableStorage}
+          >
+            Je dost zasob pro dalsiho?
+          </button>
         </>
       )}
       {activeTab === "shelter-storage" && (
